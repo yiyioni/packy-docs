@@ -1,6 +1,6 @@
 import { hopeTheme } from "vuepress-theme-hope";
 import { slimsearchPlugin } from '@vuepress/plugin-slimsearch'
-import navbar from "./navbar.js";
+import navbar, { enNavbar } from "./navbar.js";
 import sidebar from "./sidebar.js";
 
 export default hopeTheme({
@@ -23,6 +23,17 @@ export default hopeTheme({
   // 侧边栏
   sidebar,
 
+  locales: {
+    "/en/": {
+      navbar: enNavbar,
+      sidebar,
+      navbarLocales: {
+        langName: "English",
+        selectLangAriaLabel: "Select language",
+      },
+    },
+  },
+
   // 页脚
   footer: "Packy API | Copyright © 2026 Packy Team",
   displayFooter: true,
@@ -39,7 +50,16 @@ export default hopeTheme({
 
   // 多语言配置
   metaLocales: {
-    editLink: "在 GitHub 上编辑此页",
+    "/": {
+      editLink: "在 GitHub 上编辑此页",
+      selectLanguageName: "简体中文",
+      selectLanguageText: "选择语言",
+    },
+    "/en/": {
+      editLink: "Edit this page on GitHub",
+      selectLanguageName: "English",
+      selectLanguageText: "Languages",
+    },
   },
 
   // 如果想要实时查看任何改变，启用它。注: 这对更新性能有很大负面影响

@@ -175,6 +175,58 @@ jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json > /tmp/tmp.json && mv /
 3. 重启你的Claude Cli
 :::
 
+### ::ic:round-whatshot:: API Error: 400 messages.1: system content must contain at least one block
+
+在使用或恢复历史会话（例如运行 `claude -c` 或继续之前对话）时，可能会遇到如下 400 报错：
+
+```text
+API Error: 400 messages.1: system content must contain at least one block (request id: 20261007144143462-08e6b1a3)
+```
+
+#### 报错原因
+
+**客户端升级后与旧会话上下文格式不兼容**。
+
+当你升级了新版本 Claude Code 客户端后，旧版本客户端所生成的历史会话记录（包括系统提示词结构、消息上下文格式等）可能与新版规范不一致，导致请求重新组装时发送了空的 `system` 块，从而被 Anthropic 接口拒绝并返回 400 错误。
+
+#### 解决方案
+
+##### 方案一：新开对话（推荐）
+
+最快速简单的解决办法是不继承旧会话，直接新开对话：
+
+1. 启动全新的会话（**不要加** `-c` 或 `--continue` 参数）：
+   ```bash
+   claude
+   ```
+2. 让 Claude 在新会话中读取之前旧会话的记录或项目代码，例如直接输入提示词：
+   > “请读取我之前的会话历史记录和相关文件，了解我们刚才做的工作，然后在此新对话中继续完成任务。”
+3. 在新会话中继续使用，新生成的会话记录会严格匹配当前版本的规范，不会再出现该报错。
+
+##### 方案二：回退到升级前的客户端版本
+
+如果必须保留并继续旧会话的原有上下文，可以回退到升级前的 Claude Code 版本：
+
+1. **查找之前正常运行时的版本号**：
+   Claude Code 的会话记录里每条记录都包含 `version` 字段。
+   - **方法 A（在新会话中让 AI 查）**：输入 `claude` 新开一个对话，发送提示词：
+     > “请帮我检查 `~/.claude` 目录下的历史会话记录（如 `~/.claude/history.jsonl`），查看之前正常运行时的记录里自带的 `version` 字段，告诉我当时使用的具体版本号是多少。”
+   - **方法 B（直接在终端提取）**：
+     - **macOS / Linux**：
+       ```bash
+       grep -o '"version":"[^"]*"' ~/.claude/history.jsonl | tail -n 10
+       ```
+     - **Windows PowerShell**：
+       ```powershell
+       Select-String -Path "$env:USERPROFILE\.claude\history.jsonl" -Pattern '"version":"([^"]+)"' | Select-Object -Last 10
+       ```
+2. **通过 npm 重新安装对应版本**：
+   获取到之前的版本号后，在终端执行降级安装：
+   ```bash
+   npm install -g @anthropic-ai/claude-code@<查到的版本号>
+   ```
+3. 降级完成后，重新运行 `claude -c` 即可继续旧会话。
+
 ### Claude Code 如何切换回 200K 上下文并禁用非必要流量
 
 如果你希望将 Claude Code 从 1M 上下文切换回 200K 上下文，并关闭一些

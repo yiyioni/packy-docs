@@ -7,9 +7,18 @@ import theme from "./theme.js";
 export default defineUserConfig({
   base: "/",
 
-  lang: "zh-CN",
-  title: "PackyAPI 使用文档",
-  description: "Packy API 官方文档，提供最稳定、最便捷的 AI 模型中转服务。",
+  locales: {
+    "/": {
+      lang: "zh-CN",
+      title: "PackyAPI 使用文档",
+      description: "Packy API 官方文档，提供最稳定、最便捷的 AI 模型中转服务。",
+    },
+    "/en/": {
+      lang: "en-US",
+      title: "PackyAPI Documentation",
+      description: "Official Packy API documentation for connecting to AI models.",
+    },
+  },
 
   theme,
 

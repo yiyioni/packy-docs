@@ -23,7 +23,7 @@ Google 官方 **Gemini CLI**（`@google/gemini-cli`）目前稳定性较差，�
 
 令牌请创建 [Gemini](/docs/token/2-group.html#gemini分组) 或更稳的 [Gemini-slb](/docs/token/2-group.html#gemini-slb分组) 分组；企业官方渠道可选 [Gemini-officially](/docs/token/2-group.html#gemini-officially分组)。
 
-### 如何在 Cline 使用 Gemini-3
+### 如何在 Cline 使用 Gemini
 
 #### 软件要求
 
@@ -33,7 +33,7 @@ Google 官方 **Gemini CLI**（`@google/gemini-cli`）目前稳定性较差，�
 
 #### 1. 创建 Gemini 分组令牌
 
-按照 [创建 API 令牌](/docs/register/4-token.html) 的方法，创建 **Gemini** 或 **Gemini-slb** 分组令牌（跑 Gemini-3 建议 slb）：
+按照 [创建 API 令牌](/docs/register/4-token.html) 的方法，创建 **Gemini** 或 **Gemini-slb** 分组令牌：
 
 ![创建 API 选择分组示意图](/assets/image/FAQ/Gemini/002.webp)
 
@@ -72,10 +72,11 @@ Google 官方 **Gemini CLI**（`@google/gemini-cli`）目前稳定性较差，�
 2. 按下方填写配置信息
 
 ```yaml
-API Provider: OpenAI-compatible
-Base URL: https://cf.api.fan/v1
-API Key: sk-*****
-Model ID: gemini-3-pro-preview
+API Provider: Google Gemini
+Google Gemini API Key: 你的 Packy API Key（如 sk-******）
+Use custom base URL: 勾选并填写 https://cf.api.fan/v1beta/models/gemini-4-argon:generateContent
+Model: gemini-4-argon
+Reasoning Effort: Medium
 ```
 
 ![Cline 配置界面示意图](/assets/image/FAQ/Gemini/003.webp)
@@ -92,11 +93,12 @@ Model ID: gemini-3-pro-preview
 
 | 配置项 | 推荐值 | 说明 |
 | --- | --- | --- |
-| **API Provider** | `OpenAI-compatible` | 推荐选择此项，支持更多模型 |
-| **Base URL** | `https://cf.api.fan/v1` | PackyAPI 的 OpenAI 兼容端点（注意带 `/v1`） |
-| **API Key** | `sk-******` | 你的 Packy API Key |
-| **Model ID** | `gemini-3-pro-preview` | 按分组可用模型填写 |
+| **API Provider** | `Google Gemini` | 选择 Google Gemini 原生提供商 |
+| **Google Gemini API Key** | `sk-******` | 你的 Packy API Key |
+| **Use custom base URL** | 勾选，并填写 `https://cf.api.fan/v1beta/models/gemini-4-argon:generateContent` | 自定义基础端点地址 |
+| **Model** | `gemini-4-argon` | 手动输入目标模型名（提示不在列表中直接确认即可） |
+| **Reasoning Effort** | `Medium` | 思考力度（可按需选择） |
 
 #### 5. 完成配置
 
-单击右上角 **Done**。
+单击右上角 **Done** 保存。

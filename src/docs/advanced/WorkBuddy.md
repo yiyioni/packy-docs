@@ -67,15 +67,28 @@ API Key 所属分组决定了可用的模型。配置时填写的模型名称必
 
 5. 按照以下说明填写模型配置：
 
-   - **接口地址**：填写 `https://cf.api.fan/v1`
+   - **接口地址**：根据所使用的模型类型填写对应地址（详见下方注意提示）。
    - **API Key**：粘贴在 PackyAPI 网站创建的 API Key。
-   - **模型名称**：填写 API Key 所属分组下的模型 ID。下图以 `cc-sale` 分组的 `claude-opus-4-8` 为例。
-   - **高级配置**：按照所选模型的实际能力勾选。下图示例启用了工具调用、思考模式和允许关闭思考，其余配置保持图中状态即可。
+   - **模型名称**：填写 API Key 所属分组下的模型 ID（如 `claude-opus-5` 或 `deepseek-flash`）。
+   - **高级配置**：按照所选模型的实际能力勾选。使用 Claude 模型时请关闭“思考模式”；其余模型（如 DeepSeek 等）可按需开启思考模式。
+
+::: warning 注意
+- **使用 Claude 模型时**：接口地址需填写 `https://cf.api.fan/compatible/v1/chat/completions`（请关闭思考模式）
+- **使用其余模型时（如 DeepSeek 等）**：接口地址请填写 `https://cf.api.fan/v1`
+:::
 
 确认配置无误后，点击右下角的 **保存**。WorkBuddy 会将配置写入本地的 `~/.workbuddy/models.json` 文件。
 
-![](/assets/image/Advanced/WorkBuddy/05.jpg)
+::: tabs
+
+@tab Claude 模型配置示例
+![](/assets/image/Advanced/WorkBuddy/05-claude.webp)
+
+@tab 其余模型配置示例
+![](/assets/image/Advanced/WorkBuddy/05-other.webp)
+
+:::
 
 6. 返回任务对话界面，点击输入框右下角的模型选择器，选择刚刚配置的模型。发送一条消息并正常收到回复，即表示 PackyAPI 接入成功。
 
-![](/assets/image/Advanced/WorkBuddy/06.jpg)
+![](/assets/image/Advanced/WorkBuddy/06.webp)
