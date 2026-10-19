@@ -22,7 +22,7 @@
 | 许可协议 | MIT |
 
 PackyAPI 是一个“一站式 AI 中转服务”，通过统一域名和密钥接入多个大模型供应商，并提供监控、限流、告警、风控等能力。  
-本仓库则是其官方文档站的源码，用于编写与维护线上文档站 `https://docs.packyapi.com`。
+本仓库则是其官方文档站的源码，用于编写与维护线上文档站 `https://docs.packyapi.ai`。
 
 ---
 
@@ -30,9 +30,9 @@ PackyAPI 是一个“一站式 AI 中转服务”，通过统一域名和密钥�
 
 | 类型 | 链接 | 说明 |
 | --- | --- | --- |
-| 官方文档 | https://docs.packyapi.com | 本仓库编译部署后的线上站点 |
-| Packy API 官网 | https://www.packyapi.com | 产品主站与控制台入口 |
-| 服务状态监控 | https://status.packyapi.com/group/Packy | 对应文档站中的“监控站”页面 |
+| 官方文档 | https://docs.packyapi.ai | 本仓库编译部署后的线上站点 |
+| Packy API 官网 | https://www.packyapi.ai | 产品主站与控制台入口 |
+| 服务状态监控 | https://check.linux.do/group/Packy | 对应文档站中的“监控站”页面（`src/docs/Monitor.md` 内嵌的就是这个地址） |
 
 ---
 
@@ -58,7 +58,7 @@ PackyAPI 是一个“一站式 AI 中转服务”，通过统一域名和密钥�
 | CC-Switch 教程 | `src/docs/ccswitch/` | GUI 用户 | 通过 CC-Switch 图形化工具切换与管理不同供应商 / 分组 |
 | FAQ 常见问题 | `src/docs/faq/` | 所有用户 | 针对 Claude Code / Codex / Gemini 的常见问题与使用技巧 |
 | 条款与政策 | `src/docs/tos/` | 所有用户 | 服务条款、可接受使用政策、专项条款与使用约定 |
-| 监控站 | `src/docs/Monitor.md` | 运维 / 开发 | 内嵌 `status.packyapi.com` 的服务状态监控页面 |
+| 监控站 | `src/docs/Monitor.md` | 运维 / 开发 | 内嵌 `check.linux.do/group/Packy` 的服务状态监控页面 |
 
 如果你要新增文档页面，建议按现有目录划分进行扩展，保持信息架构一致。
 
