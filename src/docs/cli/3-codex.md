@@ -56,16 +56,43 @@ codex
 
   - **auth.json**：用来配置你在中转站获取的ApiKey秘钥
 
-  - **AGENTS.md**：用来设置codex全局工作的提示词，不接入中转服务也可以先不建
+  - **`AGENTS.md`**：用来设置codex全局工作的提示词，不接入中转服务也可以先不建
 
 > [!important]
 > 上图里只有 `config.toml` 是 Codex 自己生成的，`auth.json` 与 `AGENTS.md` 都可能不存在，没有就手动新建文件再写入内容。
+
+@tab MacOS
+
+1. 在访达界面按下 “Command+Shift+G”，输入以下路径并回车，打开 Codex 配置目录
+
+```bash
+~/.codex
+```
+
+![](/assets/image/Cli/011.webp)
+
+2. 目录中可能会存在以下文件，其它文件可忽略
+
+![](/assets/image/Cli/012.webp)
+
+  - **config.toml**：Codex 的核心配置文件，中转服务与 MCP 等都在此文件配置
+
+  - **auth.json**：存放中转站获取的 ApiKey 秘钥
+
+  - **`AGENTS.md`**：Codex 全局工作的提示词，不接入中转服务也可以先不建
+
+> [!important]
+> 初次安装若未自动生成，需要手动创建上述文件并写入内容
+
+:::
+
+打开配置目录后的 3–6 步，Windows 与 MacOS 完全一致；`config.toml` 里的 `[windows]` 段只对 Windows 生效，macOS 可以不写。
 
 3. 将以下内容写入 `config.toml`
 
 ```toml
 disable_response_storage = true
-model = "gpt-5.6-sol"
+model = "gpt-6-astra"
 model_provider = "packycode"
 model_reasoning_effort = "xhigh"
 model_verbosity = "high"
@@ -79,12 +106,17 @@ name = "packycode"
 requires_openai_auth = true
 wire_api = "responses"
 
+[tui]
+screen_reader_detection_done = true
+
 [windows]
 sandbox = "elevated"
 ```
 
+![](/assets/image/Cli/038.webp)
+
 > [!important]
-> `model` 要填 [Codex分组](/docs/token/2-group.html) 里实时展示的可用模型 ID，`gpt-5.3-codex` 及其以下版本已被官方删除。根据需要也可选用 `gpt-6-astra` 等模型，实际以该页面的实时列表为准。
+> `model` 要填 [Codex分组](/docs/token/2-group.html) 里实时展示的可用模型 ID，`gpt-5.3-codex` 及其以下版本已被官方删除。上图填的 `gpt-6-astra` 是当时 Codex 分组在售的模型，实际以该页面的实时列表为准。
 
 > [!note]
 > **Windows 沙盒装不上时可以换一档**
@@ -113,78 +145,13 @@ sandbox = "elevated"
 
 6. 测试对话
 
-在 Windows 终端输入以下命令，出现图示内容，进行对话测试，如果有回复，则配置成功，开始你的Codex使用之旅~
+在终端输入以下命令，出现图示内容，进行对话测试，如果有回复，则配置成功，开始你的Codex使用之旅~
 
 ```bash
 codex
 ```
 
-![](/assets/image/Cli/010-win.webp)
-
-@tab MacOS
-
-1. 在访达界面按下 “Command+Shift+G”，输入以下路径并回车，打开 Codex 配置目录
-
-```bash
-~/.codex
-```
-
-![](/assets/image/Cli/011.webp)
-
-2. 目录中可能会存在以下文件，其它文件可忽略
-
-![](/assets/image/Cli/012.webp)
-
-  - **config.toml**：Codex 的核心配置文件，中转服务与 MCP 等都在此文件配置
-
-  - **auth.json**：存放中转站获取的 ApiKey 秘钥
-
-  - **AGENTS.md**：Codex 全局工作的提示词，不接入中转服务也可以先不建
-
-> [!important]
-> 初次安装若未自动生成，需要手动创建上述文件并写入内容
-
-3. 将以下内容写入 `config.toml`
-
-```toml
-model_provider = "packycode"
-model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
-network_access = "enabled"
-disable_response_storage = true
-windows_wsl_setup_acknowledged = true
-model_verbosity = "high"
-
-[model_providers.packycode]
-name = "packycode"
-base_url = "https://cf.api.fan/v1"
-wire_api = "responses"
-requires_openai_auth = true
-```
-
-4. 将以下内容写入 `auth.json`
-
-```json
-{
-  "OPENAI_API_KEY": "xxx"
-}
-```
-
-5. 回顾 [创建API令牌](/docs/register/4-token.html) 这一步教程，在 PackyApi 中创建 **Codex** 分组的令牌，复制 key 填入 `auth.json` 中保存。
-
-![](/assets/image/Cli/009.webp)
-
-6. 测试对话
-
-在 MacOS 终端执行以下命令，出现对话界面并能收到回复即表示配置成功：
-
-```bash
-codex
-```
-
-![](/assets/image/Cli/010-mac.webp)
-
-:::
+![](/assets/image/Cli/010.webp)
 
 ## 开启自动审核（可选）
 
@@ -265,8 +232,6 @@ const loadModels = async () => {
     models.value = [...new Set(list)];
     if (!models.value.length) {
       error.value = "接口这次没返回 codex 分组的模型";
-    } else if (models.value.includes("gpt-5.6-sol")) {
-      selected.value = "gpt-5.6-sol";
     } else if (models.value.includes("gpt-6-astra")) {
       selected.value = "gpt-6-astra";
     } else {

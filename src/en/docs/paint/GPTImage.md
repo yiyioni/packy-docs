@@ -1,347 +1,220 @@
 ---
-title: GPT-Image Tutorial (gpt-image-2.5-flare)
+title: GPT-Image-2 Tutorial
 icon: material-symbols:image-outline
 order: 2
 ---
 
-This guide introduces image generation and editing using `gpt-image-2.5-flare` via Packy API.
-
-Verification Date: October 16, 2026. The examples in this guide use `https://cf.api.fan`, which applies to this model and the verified channel.
-
 ## Prerequisites
 
-1. In the console, create an API Key with permissions for `gpt-image-2.5-flare` and verify account balance and model access.
-2. Token grouping is subject to current console offerings. If the model is unavailable, check token group permissions, model restrictions, and channel status.
-3. Prepare an Images API-compatible client or call the API directly as shown below.
+The `gpt-image-2` model belongs to the **Sora Group**. Before using it, create a token with the group set to `sora`.
 
-| Configuration | Value |
-| --- | --- |
-| Service Address | `https://cf.api.fan` |
-| SDK Base URL (when SDK auto-appends path) | `https://cf.api.fan/v1` |
-| Model Name | `gpt-image-2.5-flare` (or `gpt-image-2`) |
-| Text-to-Image Endpoint | `https://cf.api.fan/v1/images/generations` |
-| Image Editing Endpoint | `https://cf.api.fan/v1/images/edits` |
-| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+Refer to the [Create Token Group](/en/docs/register/4-token.html#enter-token-management) tutorial to create a token, and **select `sora` for the group**.
 
-Different clients construct URLs differently; ensure the final endpoint contains `/v1` without duplicating it (e.g. `/v1/v1`).
+## Invocation Methods
 
-## Quick Start: Generate Your First Image
+OpenAI's official documentation categorizes image-related capabilities into Responses API, Images API, and Chat Completions API. For Packy's `gpt-image-2`, please prioritize using the Images API.
 
-Start with `1024x1024`, `low`, and `n: 1` to verify connectivity before requesting higher resolutions or quality.
+| API | OpenAI Official Purpose | Recommendation for Packy `gpt-image-2` | Status |
+|-----|-------------------------|----------------------------------------|--------|
+| Responses API | Analyze images as input; generate image output via tools | Not supported as an entry point for `gpt-image-2`. Use Images API instead. | Not Supported |
+| Images API | Generate images, upload images as input for editing | Supports text-to-image and image editing; recommended method for `gpt-image-2`. | Recommended |
+| Chat Completions API | Analyze image inputs and generate text or audio | Not supported as an entry point for `gpt-image-2`; `size`, `quality`, `output_format` parameters do not take effect. | Not Supported |
 
-### 1. Prepare Request File
+### Method 1: Images API (Recommended)
 
-Create a UTF-8 encoded `request.json` file in your working directory:
+Images API is the recommended method for `gpt-image-2`, consisting of two endpoints:
 
-```json
-{
-  "model": "gpt-image-2.5-flare",
-  "prompt": "An orange cat wearing an orange scarf holding an otter, warm illustration style",
-  "size": "1024x1024",
-  "quality": "low",
-  "output_format": "png",
-  "n": 1
-}
-```
+- Text-to-Image: `POST https://cf.api.fan/v1/images/generations`
+- Image Editing / Image-to-Image: `POST https://cf.api.fan/v1/images/edits`
 
-::: warning Important Note
-**Do not pass `response_format`.** This model directly returns Base64 image data. Passing `response_format: "url"` or `response_format: "b64_json"` will return a 400 `unknown_parameter` error.
+Each endpoint is explained below with examples and parameters. For beginners, simply pass `model`, `prompt`, and set `n` to `1`; when uploading an image, use the `image` field.
+
+::: tip Recommended Usage
+Use `/v1/images/generations` for text-to-image, and `/v1/images/edits` for image editing with a reference image.
 :::
 
-### 2. Send Request
+#### Text-to-Image: `/v1/images/generations`
 
-Replace `YOUR_API_KEY` with your actual token. Run the command in the directory containing `request.json`.
-
-macOS / Linux:
+##### Example Request
 
 ```bash
-export PACKY_API_KEY="YOUR_API_KEY"
-curl --connect-timeout 30 --max-time 300 --fail-with-body --show-error --dump-header response-headers.txt "https://cf.api.fan/v1/images/generations" -H "Authorization: Bearer $PACKY_API_KEY" -H "Content-Type: application/json" --data-binary @request.json --output response.json
+curl --location 'https://cf.api.fan/v1/images/generations' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_SORA_TOKEN' \
+--header 'Accept: */*' \
+--header 'Host: cf.api.fan' \
+--header 'Connection: keep-alive' \
+--data '{
+    "model": "gpt-image-2",
+    "prompt": "An orange cat wearing an orange scarf holding an otter, warm illustration style",
+    "size": "3840x2160",
+    "quality": "high",
+    "output_format": "png",
+    "response_format": "url",
+    "n": 1
+}'
 ```
 
-Windows PowerShell:
+##### Parameters
 
-```powershell
-$env:PACKY_API_KEY = "YOUR_API_KEY"
-curl.exe --connect-timeout 30 --max-time 300 --fail-with-body --show-error --dump-header response-headers.txt "https://cf.api.fan/v1/images/generations" -H "Authorization: Bearer $env:PACKY_API_KEY" -H "Content-Type: application/json" --data-binary "@request.json" --output response.json
+| Parameter | Type | Support | Description |
+|-----------|------|---------|-------------|
+| `model` | string | Supported | Always set to `gpt-image-2`. |
+| `prompt` | string | Supported | Description of the desired image; specify subject, scene, style, ratio, and text. |
+| `n` | integer | `1` only | Returns 1 image per request. Multi-image requests (e.g. `n: 2`, `n: 4`) are not supported. |
+| `size` | string | Supported | Supports `auto` and constrained sizes such as `1024x1024`, `1536x1024`, `1024x1536`, `1536x864`, `3840x2160`. |
+| `quality` | string | Supported | Options: `low`, `medium`, `high`, `auto`. Use `low` for drafts, `high` for production. |
+| `response_format` | string | Supported | Options: `url`, `b64_json`. Default recommendation is `url`; `b64_json` is useful for programmatic saving. |
+| `output_format` | string | Partial | Recommended: `png` or `jpeg`. `webp` is not recommended. |
+| `output_compression` | integer | Supported | Only applicable when `output_format` is `jpeg`, values from `0` to `100`. |
+| `background` | string | Partial | Recommended: default or `opaque`. `transparent` is not supported. |
+| `moderation` | string | Supported | Options: `auto`, `low`. Safety moderation parameter; does not directly alter art style. Keep default when unsure. |
+| `user` | string | Supported | Optional identifier for your end-user. Can be omitted for standard calls. |
+| ~~`stream`~~ | boolean | Not Supported | Do not enable streaming. |
+| ~~`partial_images`~~ | integer | Not Supported | Intermediate image streaming; not supported. |
+| ~~`style`~~ | string | Not Recommended | Legacy parameter from older models; not needed for `gpt-image-2`. |
+
+#### Image Editing / Image-to-Image: `/v1/images/edits`
+
+`/v1/images/edits` uses `multipart/form-data` for file uploads. Pass the binary image file in `image` and describe desired modifications in `prompt`.
+
+##### Example Request
+
+```bash
+curl --location 'https://cf.api.fan/v1/images/edits' \
+--header 'Authorization: Bearer YOUR_SORA_TOKEN' \
+--header 'Accept: */*' \
+--form 'model="gpt-image-2"' \
+--form 'prompt="Keep the subject, add a small red stamp in the top right corner with DEMO written on it"' \
+--form 'image=@"/path/to/your-image.jpg"' \
+--form 'size="1024x1024"' \
+--form 'quality="high"' \
+--form 'output_format="png"' \
+--form 'response_format="url"'
 ```
 
-Use curl with `--fail-with-body` support (v7.76.0+). On success, the response is saved to `response.json`; on HTTP errors, the error response body is retained for easy inspection. Do not simply rename `response.json` to an image file.
+##### Parameters
 
-### 3. Save Returned Image
+| Parameter | Type | Support | Description |
+|-----------|------|---------|-------------|
+| `model` | string | Supported | Always set to `gpt-image-2`. |
+| `prompt` | string | Supported | Clearly describe what to keep, modify, and the desired outcome. |
+| `image` | file | Supported | Required binary image file. Upload 1 image per request. |
+| `mask` | file | Supported | Optional PNG mask for localized edits; if omitted, the whole image is edited. |
+| `n` | integer | `1` only | Returns 1 image per request. Multiple outputs not supported. |
+| `size` | string | Supported | Same as text-to-image; supports `auto` and constrained sizes. |
+| `quality` | string | Supported | Options: `low`, `medium`, `high`, `auto`. |
+| `response_format` | string | Supported | Options: `url`, `b64_json`. Default recommendation is `url`. |
+| `output_format` | string | Partial | Recommended: `png` or `jpeg`. `webp` is not recommended. |
+| `output_compression` | integer | Supported | Only applicable when `output_format` is `jpeg`, values from `0` to `100`. |
+| `background` | string | Partial | Recommended: default or `opaque`. `transparent` is not supported. |
+| `moderation` | string | Supported | Options: `auto`, `low`. Safety moderation parameter. |
+| `input_fidelity` | string | Supported | Can pass `high` to preserve original subject and details. |
+| `user` | string | Supported | Optional identifier. |
+| ~~`stream`~~ | boolean | Not Supported | Do not enable streaming. |
+| ~~`partial_images`~~ | integer | Not Supported | Intermediate image streaming; not supported. |
 
-Response structure schematic (Base64 omitted):
+#### General Notes
+
+##### Sizes and Quality
+
+- **Popular Sizes**
+  - **1024 × 1024**: Square
+  - **1536 × 1024**: Landscape
+  - **1024 × 1536**: Portrait
+  - **2048 × 2048**: 2K Square
+  - **2048 × 1152**: 2K Landscape
+  - **3840 × 2160**: 4K Landscape
+  - **2160 × 3840**: 4K Portrait
+  - **auto**: Automatic (Default)
+
+- **Size Constraints**
+  - Maximum dimension must be **less than or equal to 3840 pixels**.
+  - Width and height must be **multiples of 16**.
+  - Aspect ratio **cannot exceed 3:1**.
+  - Total pixels must be **between 655,360 and 8,294,400**.
+
+- **Quality Options**
+  - **low**: Low quality (fastest)
+  - **medium**: Medium quality
+  - **high**: High quality (recommended for production)
+  - **auto**: Automatic (Default)
+
+##### Response Format
+
+Default response returns a download URL:
 
 ```json
 {
+  "created": 1776923999,
   "data": [
     {
-      "b64_json": "Base64 image data string...",
-      "generation_id": "generation-identifier"
+      "url": "https://external-resources.packyapi.ai/file_download/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "revised_prompt": "..."
     }
-  ],
-  "output_format": "png",
-  "quality": "low",
-  "size": "1024x1024"
+  ]
 }
 ```
 
-Images reside in `data[].b64_json`, not as download URLs. `revised_prompt` may not be present and should not be strictly required by clients.
-
-Save the following script as `save_images.py`. It uses only the Python 3 standard library to decode and save all returned images with automatic format detection:
-
-```python
-import base64
-import binascii
-import json
-import sys
-from pathlib import Path
-
-
-def main():
-    source = Path(sys.argv[1] if len(sys.argv) > 1 else "response.json")
-    result = json.loads(source.read_text(encoding="utf-8-sig"))
-    if result.get("error"):
-        raise ValueError("API Error: " + json.dumps(result["error"], ensure_ascii=False))
-    items = result.get("data")
-    if not isinstance(items, list) or not items:
-        raise ValueError("No images found in response. Check HTTP status and response body.")
-    output_dir = source.parent / (source.stem + "-images")
-    output_dir.mkdir(exist_ok=True)
-    for index, item in enumerate(items, 1):
-        encoded = item.get("b64_json")
-        if not isinstance(encoded, str) or not encoded:
-            raise ValueError(f"Item {index} missing b64_json")
-        raw = base64.b64decode(encoded, validate=True)
-        if raw.startswith(b"\x89PNG\r\n\x1a\n"):
-            extension = "png"
-        elif raw.startswith(b"\xff\xd8\xff"):
-            extension = "jpg"
-        elif raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
-            extension = "webp"
-        else:
-            raise ValueError(f"Item {index} is not recognized as PNG, JPEG, or WebP")
-        output = output_dir / f"image-{index}.{extension}"
-        output.write_bytes(raw)
-        print("Saved:", output)
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except (OSError, ValueError, TypeError, AttributeError, binascii.Error) as error:
-        print("Save failed:", error, file=sys.stderr)
-        sys.exit(1)
-```
-
-macOS / Linux:
-
-```bash
-python3 save_images.py response.json
-```
-
-Windows PowerShell:
-
-```powershell
-py -3 save_images.py response.json
-```
-
-Images are saved to the `response-images` folder.
-
-## Text-to-Image Parameters
-
-| Parameter | Description | Verification Status |
-| --- | --- | --- |
-| `model` | Required. Specify `gpt-image-2.5-flare` | Verified |
-| `prompt` | Required. Describe subjects, scene, style, and text | Verified with English and Chinese |
-| `n` | Official range is integer `1`–`10`. Default `1` | `1` and `2` verified; `11` rejected |
-| `size` | `auto` or valid `widthxheight` | `1024x1024`, `1536x864`, `3840x2160` verified |
-| `quality` | `low`, `medium`, `high`, `xhigh`, `max`, `auto` | `low`, `high`, `xhigh`, `max` verified |
-| `output_format` | `png`, `jpeg`, `webp` | All three verified with valid files |
-| `output_compression` | `0`–`100` for JPEG / WebP; not used for PNG | `80` verified for JPEG and WebP |
-| `background` | `opaque`, `transparent`, `auto`; transparent requires PNG or WebP | Default opaque and WebP transparent verified |
-| `response_format` | **Do not pass** | Both `url` and `b64_json` return 400; response natively includes `b64_json` |
-| `stream`, `partial_images` | Image streaming is not enabled on this channel | `stream: true` returns channel error; omit both fields |
-
-### Size & Quality Selection Guide
-
-| Use Case | Recommended Size |
-| --- | --- |
-| Square | `1024x1024` |
-| Landscape Illustration | `1536x1024` |
-| Portrait Poster | `1024x1536` |
-| 16:9 Widescreen | `1536x864` |
-| 4K UHD | `3840x2160` (Experimental resolution) |
-
-Explicit custom sizes must meet the following rules:
-
-- Width and height must both be multiples of 16.
-- Aspect ratio must not exceed 3:1.
-- Max dimension $\le 3840$ pixels.
-- Total pixel count between 655,360 and 8,294,400.
-- Resolutions higher than `2560x1440` are considered experimental.
-
-If `size` is omitted, the model chooses automatically (e.g. `1254x1254` PNG in test). Specify `size` explicitly if a fixed resolution is required.
-
-### Example: Generate Two JPEGs
+If `"response_format": "b64_json"` is passed, base64 image data is returned:
 
 ```json
 {
-  "model": "gpt-image-2.5-flare",
-  "prompt": "A red circle in the center of a pure white background, no text",
-  "size": "1024x1024",
-  "quality": "low",
-  "output_format": "jpeg",
-  "output_compression": 80,
-  "n": 2
+  "created": 1776923999,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "revised_prompt": "..."
+    }
+  ]
 }
 ```
 
-### Example: Generate Transparent WebP
+### Method 2: Responses API (Not Supported)
 
-```json
-{
-  "model": "gpt-image-2.5-flare",
-  "prompt": "A pure red circle, fully transparent surrounding, no shadows, no text",
-  "size": "1536x864",
-  "quality": "xhigh",
-  "output_format": "webp",
-  "output_compression": 80,
-  "background": "transparent",
-  "n": 1
-}
-```
+::: warning Not Supported
+Packy's `gpt-image-2` does not support generating images via `/v1/responses`. Do not use `image_generation` tools, `input`, or `input_image` to invoke `gpt-image-2`.
+:::
 
-## Image Editing & Inpainting
+### Method 3: Chat Completions API (Not Supported)
 
-Image editing uses `POST /v1/images/edits` via `multipart/form-data`. Prepare an `input.png` image in your working directory.
-
-macOS / Linux:
-
-```bash
-curl --connect-timeout 30 --max-time 300 --fail-with-body --show-error --dump-header edit-headers.txt "https://cf.api.fan/v1/images/edits" -H "Authorization: Bearer $PACKY_API_KEY" -F "model=gpt-image-2.5-flare" -F "prompt=Change the red circle to a blue circle, retain white background and shape" -F "image=@input.png" -F "size=1024x1024" -F "quality=low" -F "output_format=png" -F "n=1" --output edit-response.json
-```
-
-Windows PowerShell:
-
-```powershell
-curl.exe --connect-timeout 30 --max-time 300 --fail-with-body --show-error --dump-header edit-headers.txt "https://cf.api.fan/v1/images/edits" -H "Authorization: Bearer $env:PACKY_API_KEY" -F "model=gpt-image-2.5-flare" -F "prompt=Change the red circle to a blue circle, retain white background and shape" -F "image=@input.png" -F "size=1024x1024" -F "quality=low" -F "output_format=png" -F "n=1" --output edit-response.json
-```
-
-Do not manually add a `Content-Type` header; curl sets the boundary automatically.
-
-Save the edited image using the same Python script:
-
-```bash
-python3 save_images.py edit-response.json
-```
-
-| Edit Field | Usage |
-| --- | --- |
-| `image` | Required binary file of the source image |
-| `prompt` | Required description of changes |
-| `mask` | Optional PNG mask with transparent alpha matching source image dimensions |
-| `size`, `quality`, `output_format`, `n` | Optional parameters |
-| `input_fidelity` | **Do not pass** (rejected by model with 400 error) |
-| `response_format` | **Do not pass** |
-
-### Using an Inpainting Mask
-
-Set areas to modify as transparent and areas to preserve as opaque. The mask must match the **input image** dimensions exactly.
-
-Add `-F "mask=@mask.png"` to the curl command:
-
-```text
--F "mask=@mask.png"
-```
-
-## About Other APIs
-
-This tutorial recommends the verified Images API. OpenAI also offers image tools in Responses API (`image_generation`), which differs from calling image models directly as chat models. Responses image tools and Chat Completions image generation are unverified on `cf.api.fan`; prioritize Images API.
+::: warning Not Supported
+Packy's `gpt-image-2` does not support generating images via `/v1/chat/completions`. Do not pass image generation parameters into Chat Completions requests.
+:::
 
 ## Using in Cherry Studio
 
-1. Create an API Key in the console with image model access. Copy the API Key.
+1. Refer to [Create Token Group](/en/docs/register/4-token.html#enter-token-management) and create an API Key with the group set to `sora`. Copy the API Key.
 2. Download and install [Cherry Studio](https://www.cherry-ai.com/).
-3. Open Cherry Studio, click the lower-left settings icon, navigate to `Model Services`, and click `Add`.
-4. Set Provider Name to `packyapi-gpt-image`, Provider Type to `New API`, and click OK.
+3. Open Cherry Studio, click Settings in the bottom-left corner, go to **Model Services**, and click **Add** at the bottom to add a provider.
+4. Name the provider (e.g. `packyapi-gpt-image-2`), set **Provider Type** to `New API`, and click **OK**.
 
 ![](/assets/image/Paint/gpt-image-2/01.webp)
 
-5. Paste your API Key and set `API Address` to `https://cf.api.fan`.
+5. Paste your `sora` API Key into **API Key**, and set **API URL** to `https://cf.api.fan`.
 
 ![](/assets/image/Paint/gpt-image-2/02.webp)
 
-6. Click `Fetch Model List` to add `gpt-image-2.5-flare` (or `gpt-image-2`).
-7. Click the edit icon next to the model, set Endpoint Type to **Image Generation (OpenAI)**, and click Save.
+6. Click **Get Model List**, refresh, and add `gpt-image-2`.
+7. Click the edit button next to `gpt-image-2`, set **Endpoint Type** to `Image Generation (OpenAI)`, and save.
 
 ![](/assets/image/Paint/gpt-image-2/03.webp)
 
-8. Return to Home, click the `+` button in the top bar, and select the **Paint** app.
+8. Return to the main screen, click `+` at the top, and select the **Paint / Image Generation** application.
 
 ![](/assets/image/Paint/gpt-image-2/04.webp)
 
-9. Select the provider and model `gpt-image-2.5-flare`. Keep size and quality as Auto and quantity as 1 for initial tests.
+9. On the left panel, select your newly added provider and set model to `gpt-image-2`. Keep size, quality, and moderation set to Auto initially, and count set to 1.
 
 ![](/assets/image/Paint/gpt-image-2/05.webp)
 
-10. For text-to-image, select **Paint** mode at the top and enter your prompt.
-11. For editing or image-to-image, switch to **Edit** mode, upload a reference image, and submit your prompt.
+10. Use **Paint** mode for text-to-image by typing your prompt and sending.
+11. Use **Edit** mode to upload a reference image for image-to-image or editing.
 
 ![](/assets/image/Paint/gpt-image-2/06.webp)
 
-::: tip Usage Tips
-- **API Address**: Simply enter `https://cf.api.fan`; Cherry Studio automatically appends compatible endpoints without needing `/v1`.
-- If older client versions send `response_format` or `input_fidelity`, check for client updates or invoke the API directly.
-- Disabling stream in standard chat does not convert Chat Completions to Images API; use the Paint app.
-:::
+## Notes on Long Connections & Proxies
 
-## Troubleshooting & FAQ
+Image generation requests take significantly longer than text chats. If your local proxy or gateway enforces strict timeouts (around 60s), the connection may be prematurely dropped, showing `Failed to fetch`.
 
-| Issue | Resolution |
-| --- | --- |
-| `Unknown parameter: 'response_format'` | Remove `response_format` entirely from your payload. |
-| Unsupported `input_fidelity` | Remove `input_fidelity` from form-data. |
-| `streaming image output is not enabled on this channel` | Omit `stream` and `partial_images`; streaming is not enabled on this channel. |
-| `n` out of range | Use integers `1`–`10`. |
-| HTTP 401 / 403 or model unavailable | Verify token permissions, account balance, and model group restrictions. |
-| HTTP 429 | Rate limit reached; adjust request frequency. |
-| `Failed to fetch` | Check network, proxy, browser CORS, and ensure `cf.api.fan` is accessible. |
-| `Unexpected token '<' ... is not valid JSON` | HTML error or challenge page returned; verify endpoint URL and status before retrying. |
-| HTTP 200 but image not rendered | Verify `data[].b64_json` is present; decode locally using the provided Python script. |
-| Timeout / connection abort | Check client and proxy timeout settings; verify console logs before retrying. |
-
-### Client Error Screens
-
-- **`Failed to fetch`**: Network interruption or proxy timeout. Ensure `https://cf.api.fan` is accessible.
-
-![](/assets/image/Paint/gpt-image-2/07.webp)
-
-- **`Unexpected token '<', "<html>...`**: A Cloudflare challenge or HTML error page was returned instead of JSON.
-
-![](/assets/image/Paint/gpt-image-2/08.webp)
-
-## Long-Connection & Proxy Settings
-
-Image generation tasks can take 60–120 seconds or longer depending on resolution and quality. If your local proxy software enforces a 60-second connection timeout, it may abort the request and display `Failed to fetch`.
-
-![](/assets/image/Paint/gpt-image-2/09.webp)
-
-To avoid proxy timeouts, configure your proxy client to **Direct Connect (Bypass Proxy / Whitelist)** for both **`cf.api.fan`** and **`packyapi.ai`**.
-
-![](/assets/image/Paint/gpt-image-2/10.webp)
-
-Once configured, image generation requests can complete cleanly without premature proxy termination.
-
-![](/assets/image/Paint/gpt-image-2/11.webp)
-
-::: warning Timeout & Retry Reminder
-- Do not manually add `Host` or `Connection: keep-alive` headers; they cannot override proxy/client timeouts.
-- A timeout does not mean the backend failed to generate; check console logs before retrying to avoid duplicate charges.
-:::
-
-## References
-
-- [OpenAI Image Generation Guide](https://developers.openai.com/api/docs/guides/image-generation)
-- [OpenAI Images API Reference](https://developers.openai.com/api/reference/resources/images)
-- [Cherry Studio Drawing Guide](https://docs.cherryai.com.cn/cherry-studio/preview/drawing)
+Configure your proxy client to set **`cf.api.fan`** and **`packyapi.ai`** to **Direct Connection (Bypass Proxy / Whitelist)** to prevent unexpected timeouts.

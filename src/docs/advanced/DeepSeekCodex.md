@@ -29,7 +29,7 @@ Codex 原生面向 OpenAI 模型。接入 DeepSeek 后可能出现模型元数�
    - **官网链接**：`https://www.packyapi.ai`
    - **API Key**：刚才创建的 `deepseek-officially` 分组 API Key
    - **API 请求地址**：`https://cf.api.fan/v1`
-   - **默认模型**：`deepseek-flash`
+   - **默认模型**：`deepseek-v4-flash`
 
 ![](/assets/image/CC-Switch/guide/031.jpg)
 
@@ -41,7 +41,7 @@ Codex 原生面向 OpenAI 模型。接入 DeepSeek 后可能出现模型元数�
 
 ## 验证配置
 
-在终端运行 `codex` 并发送一条测试消息。界面底部显示 `deepseek-flash` 且能够正常回复，即表示 Codex CLI 已经接入成功。
+在终端运行 `codex` 并发送一条测试消息。界面底部显示 `deepseek-v4-flash` 且能够正常回复，即表示 Codex CLI 已经接入成功。
 
 ![](/assets/image/CC-Switch/guide/033.jpg)
 

@@ -287,8 +287,6 @@ const loadModels = async () => {
     models.value = [...new Set(list)];
     if (!models.value.length) {
       error.value = "No models found for codex group";
-    } else if (models.value.includes("gpt-5.6-sol")) {
-      selected.value = "gpt-5.6-sol";
     } else if (models.value.includes("gpt-6-astra")) {
       selected.value = "gpt-6-astra";
     } else {

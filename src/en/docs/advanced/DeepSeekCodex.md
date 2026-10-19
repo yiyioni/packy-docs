@@ -28,7 +28,7 @@ Codex was natively built for OpenAI models. Using DeepSeek models may occasional
    - **Website**: `https://www.packyapi.ai`
    - **API Key**: Your `deepseek-officially` token.
    - **API Endpoint**: `https://cf.api.fan/v1`
-   - **Default Model**: `deepseek-flash`
+   - **Default Model**: `deepseek-v4-flash`
 
 ![](/assets/image/CC-Switch/guide/031.jpg)
 
@@ -40,7 +40,7 @@ Codex was natively built for OpenAI models. Using DeepSeek models may occasional
 
 ## Verification
 
-Run `codex` in your terminal and send a test prompt. If the bottom shows `deepseek-flash` and replies properly, configuration is successful.
+Run `codex` in your terminal and send a test prompt. If the bottom shows `deepseek-v4-flash` and replies properly, configuration is successful.
 
 ![](/assets/image/CC-Switch/guide/033.jpg)
 
